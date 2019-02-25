@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" href="/breakout/static/css/breakout.css"/>
+  <link rel="stylesheet" href="/breakout/static/css/bootstrap.css"/>
+  <title>breakout</title>
+</head>
+<body style="background-color: #F5F5F5;padding-left: 25px;margin-top: 55px;">
+  <img id="blueBrick" src="/breakout/static/img/blue.png" style="width: 0px; display: block;">
+  <img id="greenBrick" src="/breakout/static/img/green.png" style="width: 0px; display: block;">
+  <img id="yellowBrick" src="/breakout/static/img/yellow.png" style="width: 0px; display: block;">
+  <img id="bluePaddle" src="/breakout/static/img/bluePaddle.png" style="width: 0px; display: block;">
+  <img id="redPaddle" src="/breakout/static/img/redPaddle.png" style="width: 0px; display: block;">
+  <img id="ball" src="/breakout/static/img/ball.png" style="width: 0px; display: block;">
+  <img id="life" src="/breakout/static/img/life.png" style="width: 0px; display: block;">
+  <img id="multi" src="/breakout/static/img/multi.png" style="width: 0px; display: block;">
+  <img id="border" src="/breakout/static/img/background.png" style="width: 0px; display: block;">
+  <img id="pk" src="/breakout/static/img/pk.png" style="width: 0px; display: block;">
+  <img id="victory_img" src="/breakout/static/img/victory.png" style="width: 0px; display: block;">
+  <img id="defeat_img" src="/breakout/static/img/defeat.png" style="width: 0px; display: block;">
+  <audio id="defeat" src="/breakout/static/mp3/defeat.m4a" hidden="hidden"></audio>
+  <audio id="victory" src="/breakout/static/mp3/victory.m4a" hidden="hidden"></audio>
+  <audio id="crash_brick" src="/breakout/static/mp3/crash_brick.wav" hidden="hidden"></audio>
+  <audio id="crash_yellow" src="/breakout/static/mp3/crash_yellow.WAV" hidden="hidden"></audio>
+  <audio id="crash_green" src="/breakout/static/mp3/crash_green.wav" hidden="hidden"></audio>
+  <audio id="add_ball" src="/breakout/static/mp3/add_ball.wav" hidden="hidden"></audio>
+  <audio id="crash_paddle" src="/breakout/static/mp3/crash_paddle2.wav" hidden="hidden"></audio>
+
+
+
+
+  <!--<h1>hello there:</h1>-->
+
+
+  <canvas id="RankView" tabindex="1" style="z-index: 4;position: absolute;"></canvas>
+  <canvas id="BrickView" tabindex="1" style="z-index: 3;position: absolute;"></canvas>
+  <canvas id="GameView" tabindex="1" style="z-index: 2;position: absolute;"></canvas>
+  <canvas id="BorderView" tabindex="1" style="z-index: 1;"></canvas>
+  <!--<canvas id="GameView2" tabindex="2"></canvas>-->
+
+
+
+  <!--<div id="playground"></div>-->
+
+  <script type="text/javascript" src="/breakout/static/sjsout/frontend-fastopt.js"></script>
+  <!--<script type="text/javascript" src="/hiStream/frontend-launcher.js"></script>-->
+
+  <script>breakout.Main.run()</script>
+  <!--<script>snake.NetGameHolder.run()</script>-->
+
+</body>
+</html>
