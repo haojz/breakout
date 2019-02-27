@@ -34,8 +34,6 @@ object DrawRank {
 
 
   def drawScore(seat: Int, score: Int) = {
-//    ctx.fillStyle = Color.Black.toString()
-//    ctx.fillRect(15 * canvasUnit, 0, 16 * canvasUnit, 2.5 * canvasUnit)
     ctx.clearRect(13.6 * canvasUnit + seat * Boundary.start2 * canvasUnit, 0, 16 * canvasUnit, 3.3 * canvasUnit)
     ctx.fillStyle = Color.White.toString()
     ctx.font = "30px Helvetica"
@@ -65,7 +63,7 @@ object DrawRank {
 
   def drawPaddle(seat: Int, paddleLeft: Int, characterLife: Int) = {
 
-    ctx.clearRect(seat * Boundary.start2 * canvasUnit, paddleY * canvasUnit, 62 * canvasUnit, paddleHeight * canvasUnit)
+    ctx.clearRect(seat * Boundary.start2 * canvasUnit, paddleY * canvasUnit, 50 * canvasUnit, paddleHeight * canvasUnit)
     val paddle = seat match {
         case 0 => redPaddle
         case 1 => bluePaddle
@@ -112,19 +110,20 @@ object DrawRank {
     canvasUnit = canvasUnitRecv
     if (first) {
       ctx.fillStyle = "rgba(255, 255, 255, 0)"
-      ctx.fillRect(0, 0, Boundary.w * canvasUnit, Boundary.h * canvasUnit)
+      ctx.fillRect(0, 0, 50 * canvasUnit, Boundary.h * canvasUnit)
+      ctx.fillRect(80 * canvasUnit, 0, 50 * canvasUnit, Boundary.h * canvasUnit)
       ctx.globalAlpha = 1
       brickCtx.fillStyle = "rgba(255, 255, 255, 0)"
       brickCtx.fillRect(0, 0, Boundary.w * canvasUnit, Boundary.h * canvasUnit)
       brickCtx.globalAlpha = 1
     } else {
-      ctx.clearRect(0, 0, Boundary.w * canvasUnit, Boundary.h * canvasUnit)
+      ctx.clearRect(0, 0, 50 * canvasUnit, Boundary.h * canvasUnit)
+      ctx.clearRect(80 * canvasUnit, 0, 50 * canvasUnit, Boundary.h * canvasUnit)
       brickCtx.clearRect(0, 0, Boundary.w * canvasUnit, Boundary.h * canvasUnit)
     }
     val width = 4 * canvasUnit
     val height = 2 * canvasUnit
 
-//    drawBricks(snakes, bricks)
     bricks.foreach { b =>
       val seat = b._2._1
       val snake = snakes.find(_.color == seat)
@@ -156,11 +155,8 @@ object DrawRank {
       ctx.drawImage(paddle, snake.paddleLeft * canvasUnit, paddleY * canvasUnit,
         paddleW * canvasUnit, paddleHeight * canvasUnit)
 
+      ctx.clearRect(snake.color * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 6 * canvasUnit)
       val offX = width * numEveryRow + (snake.color * Boundary.start2 + 2) * canvasUnit
-      //      val rightX = (Boundary.end1 + 80 * snake.color) * canvasUnit
-      //      rankCtx.fillStyle = Color.Black.toString()
-      //      rankCtx.globalAlpha = 1
-      //      rankCtx.fillRect(offX, 0, rightX - offX , startY)
       ctx.drawImage(life, offX, 0.75 * canvasUnit, 2.5 * canvasUnit, 2.5 * canvasUnit)
       ctx.drawImage(multi, offX + 3 * canvasUnit,  canvasUnit, 2 * canvasUnit, 2 * canvasUnit)
       ctx.fillStyle = Color.White.toString()
@@ -171,7 +167,4 @@ object DrawRank {
     }
   }
 
-//  def changeToEnd(): Unit = {
-//    end = true
-//  }
 }

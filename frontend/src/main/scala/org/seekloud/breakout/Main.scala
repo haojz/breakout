@@ -18,10 +18,10 @@ import scalacss.ProdDefaults._
   */
 @JSExportTopLevel("breakout.Main")
 object Main extends PageSwitcher {
-  val host = "0.0.0.0"
+//  val host = "0.0.0.0"
 //  var name1 = ""
 //  var name2 = ""
- //  val host = "10.1.29.250"
+   val host = "10.1.29.250"
 
 
 
@@ -41,10 +41,7 @@ object Main extends PageSwitcher {
       case "Admin" :: Nil => <div style="width:100%">{Admin.render}</div>
       case "Register" :: Nil => <div style="width:100%">{Register.render}</div>
       case "Login" :: Nil => <div style="width:100%">{Login.render}</div>
-      case "Game" :: id :: Nil =>
-//        println(s"name1: $name1")
-//        println(s"name2: $name2")
-        new NetGameHolder(id).render()
+      case "Game" :: id :: Nil => new NetGameHolder(id).render()
       case "Header" :: Nil => <div>{org.seekloud.breakout.components.Header.render}</div>
       case _ => <div>{Home.render}</div>
     }

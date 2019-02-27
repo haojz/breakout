@@ -9,7 +9,7 @@ val scalaV = "2.12.6"
 //val scalaV = "2.11.8"
 
 val projectName = "breakout"
-val projectVersion = "1.2.1"
+val projectVersion = "1.2.2"
 
 val projectMainClass = "org.seekloud.breakout.Boot"
 

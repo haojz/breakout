@@ -38,7 +38,6 @@ trait UserService extends ServiceUtils with CirceSupport with SessionBase {
     dealFutureResult {
       roomStateF.map { rst =>
         complete(rst)
-        //            case _ => complete(ErrorRsp(100002, "error"))
       }
     }
   }
@@ -90,7 +89,7 @@ trait UserService extends ServiceUtils with CirceSupport with SessionBase {
       case Some(session) =>
         invalidateSession {
           roomManager ! RoomManager.Logout(session.userInfo.id)
-          redirect("http://localhost:40110/breakout#/Home", StatusCodes.SeeOther)
+          redirect("http://10.1.29.250:47010/breakout#/Home", StatusCodes.SeeOther)
         }
         complete(SuccessRsp())
 

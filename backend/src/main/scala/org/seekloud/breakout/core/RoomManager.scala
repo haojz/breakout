@@ -34,7 +34,6 @@ object RoomManager {
   case class FailMsgFront(ex: Throwable) extends Command
 
   case class JoinRoom(userType: Byte, id: String, name: String, room: Int, seat: Byte, replyTo: ActorRef[CommonRsp]) extends Command
-//                      subscriber: ActorRef[WsSourceProtocol.WsMsgSource]) extends Command
 
   case class JoinGame(id: String, subscriber: ActorRef[WsSourceProtocol.WsMsgSource]) extends Command
 
@@ -84,7 +83,6 @@ object RoomManager {
               if (newUserMap.nonEmpty) {
                 roomState += oldRoom._1 -> Some(RoomState(oldRoom._2.get.pwd, newUserMap))
               } else roomState += oldRoom._1 -> None
-              //            roomState += room -> Some(RoomState(None, Map(bId -> User(seat, UserInfo(bId, id, name), 0))))
               bId
             } else {
               val bId = (breakoutIdGenerator.getAndIncrement() % Byte.MaxValue).toByte
@@ -93,7 +91,6 @@ object RoomManager {
             }
             roomState.get(room) match {
               case Some(None) =>
-                //                val breakoutId = (breakoutIdGenerator.getAndIncrement() % Byte.MaxValue).toByte
                 roomState += room -> Some(RoomState(None, Map(breakoutId -> User(seat, UserInfo(breakoutId, id, name), 0))))
                 replyTo ! SuccessRsp()
               case Some(Some(roomInfo)) =>
@@ -111,12 +108,6 @@ object RoomManager {
 
             }
           }
-//          val roomId = roomIdGenerator.getAndIncrement()
-//          val breakoutId = (breakoutIdGenerator.getAndIncrement() % Byte.MaxValue).toByte
-//          roomMap += roomId -> (None, mutable.HashMap(id -> (breakoutId, name)))
-//          println(roomMap)
-//          getRoomActor(ctx, roomId) ! RoomActor.JoinRoom(breakoutId, id, name, subscriber)
-//          subscriber ! Protocol.RoomId(roomId.toString)
           Behaviors.same
 
         case m@JoinGame(id, subscriber) =>
@@ -167,13 +158,7 @@ object RoomManager {
 
         case GetRoomState(replyTo) =>
           replyTo ! RoomStateRsp(roomState.filterNot(_._2.isEmpty).toList.map(r =>Room(r._1, r._2)))
-//          replyTo ! RoomStateRsp(roomState.filterNot(_._2.isEmpty).toList.map(r =>Room(r._1, "1")))
-//          replyTo ! RoomStateRsp("asdas")
           Behaviors.same
-
-//        case m@UserDead(roomId, users) =>
-//          getRoomActor(ctx, roomId) ! m
-//          Behaviors.same
 
         case Left(id) =>
           roomMap.find(_._2._2.contains(id)) match {
@@ -252,18 +237,11 @@ object RoomManager {
         },
         bufferSize = 64,
         overflowStrategy = OverflowStrategy.dropHead
-//      ).mapMaterializedValue(outActor => actor ! JoinRoom(userType, userId, name, room, seat, outActor))
       ).mapMaterializedValue(outActor => actor ! JoinGame(userId, outActor))
 
     Flow.fromSinkAndSource(in, out)
   }
 
-//  def generateBreakoutId(carnieIdGenerator: AtomicInteger, existsId: Iterable[Byte]): Byte = {
-//    var newId = (carnieIdGenerator.getAndIncrement() % Byte.MaxValue).toByte
-//    while (existsId.exists(_ == newId)) {
-//      newId = (carnieIdGenerator.getAndIncrement() % Byte.MaxValue).toByte
-//    }
-//    newId
-//  }
+
 
 }

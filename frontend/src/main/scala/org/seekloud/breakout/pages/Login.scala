@@ -51,27 +51,6 @@ object Login extends Page {
         }
       }
     }
-
-//    Http.postJsonAndParse[LoginRsp](Routes.login, data).map {
-//      case Right(rsp) =>
-//        if (rsp.errCode == 10003) {
-//          JsFunc.alert("用户不存在！")
-//        } else if (rsp.errCode == 1004) {
-//          JsFunc.alert("密码错误！")
-//        } else if (rsp.errCode == 0) {
-//          JsFunc.alert("登录成功！")
-//          dom.window.localStorage.setItem("userId", rsp.userInfo.id)
-//          dom.window.localStorage.setItem("userName", rsp.userInfo.name)
-//          dom.window.localStorage.setItem("headImg", rsp.userInfo.headImg)
-//          Header.removeGuestInfo()
-//          Header.loginState := Some(UserInfo(1, rsp.userInfo.id, rsp.userInfo.name, rsp.userInfo.headImg))
-//          dom.window.location.hash = "#/Home"
-//        } else {
-//          JsFunc.alert("登录请求失败，请稍后再试！")
-//        }
-//      case Left(e) =>
-//
-//    }
   }
 
   def render: Elem = {

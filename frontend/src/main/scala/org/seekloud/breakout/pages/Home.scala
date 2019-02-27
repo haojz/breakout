@@ -74,8 +74,8 @@ object Home extends Page {
   }
 
   def joinGame(): Unit = {
-    dom.window.location.href=s"http://$host:40110/breakout/game#/Game/$myId"
-//    dom.window.location.href=s"http://192.168.1.103:40110/breakout/game#/Game/$myId"
+    dom.window.location.href=s"http://$host:47010/breakout/game#/Game/$myId"
+//    dom.window.location.href=s"http://192.168.1.103:47010/breakout/game#/Game/$myId"
 //    dom.window.location.hash=s"#/Game/$myId"
 
   }

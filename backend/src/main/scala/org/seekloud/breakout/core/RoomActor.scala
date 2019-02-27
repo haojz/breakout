@@ -1,17 +1,11 @@
 package org.seekloud.breakout.core
-import java.util.concurrent.atomic.AtomicInteger
-
 import akka.actor.typed.{ActorRef, Behavior}
 import akka.actor.typed.scaladsl.{ActorContext, Behaviors, TimerScheduler}
-import org.seekloud.breakout.Protocol._
 import org.seekloud.breakout.client.GridOnServer
 import scala.language.postfixOps
 import concurrent.duration._
-import org.seekloud.breakout.common.AppSettings
 import scala.collection.mutable
-import scala.concurrent.duration.FiniteDuration
 import org.slf4j.LoggerFactory
-//import org.seekloud.breakout.core.RoomManager
 import org.seekloud.breakout.Protocol._
 import org.seekloud.breakout._
 import org.seekloud.breakout.core.RoomManager.Left
@@ -30,8 +24,6 @@ object RoomActor {
 
   case class UserActionOnServer(id: String, action: Protocol.UserAction) extends Command
 
-//  case class UserDead(roomId: Int, users: List[String]) extends Command with RoomManager.Command
-
   private final case object SyncKey
 
   private case object Sync extends Command
@@ -41,9 +33,6 @@ object RoomActor {
   private case object Close extends Command
 
   private val log = LoggerFactory.getLogger(this.getClass)
-
-//  private var init = false
-//  private var bricksInit = false
 
   def create(roomId: Int): Behavior[Command] = {
     log.debug(s"Room Actor-$roomId start...")
@@ -81,18 +70,12 @@ object RoomActor {
           val snake = SkDt(breakoutId, id, name, paddle, seat)
           grid.snakes += breakoutId -> snake
           if (userMap.toList.length == 2) {
-//            println(s"---------------bricks init")
             grid.initBricks()
-//            bricksInit = true
             timer.startPeriodicTimer(SyncKey, Sync, frameRate millis)
-            //            val bricks = grid.initBricks().toList.sortBy(_._1)
-//            dispatch(subscribersMap, Protocol.InitBricks(bricks))
           }
 
-//          println(s"snakes::::::::::${grid.snakes}")
           dispatch(subscribersMap, Protocol.NewSnake(snake))
-//          grid.addSnake(id)
-//          println(s"userMap:::::$userMap")
+
           Behaviors.same
 
         case ReJoinRoom =>
@@ -130,11 +113,6 @@ object RoomActor {
                 Behaviors.same
               }
 
-//              } else {
-//                log.error(s"deadList not contain $id")
-//                Behaviors.same
-//              }
-
             case KeyDown(key, frameCount) =>
               val realFrame = Math.max(grid.frameCount, frameCount)
               grid.addActionWithFrame(id, key, realFrame)
@@ -145,7 +123,6 @@ object RoomActor {
               Behaviors.same
 
             case KeyUp(frameCount) =>
-//              println(s"userMap:::::$userMap")
               val realFrame = Math.max(grid.frameCount, frameCount)
               grid.addActionWithFrame(id, 0, realFrame)
               if (userMap.get(id).nonEmpty) {
@@ -184,10 +161,6 @@ object RoomActor {
               Behaviors.same
           }
 
-//        case m@UserDead(_, users) =>
-//          log.info(s"recv userdead:$users")
-//          dispatch(subscribersMap, Protocol.UserDead(grid.frameCount.toInt, users))
-//          idle(roomId, grid, userMap, users:::deadList, subscribersMap, tickCount)
 
         case Left(id) =>
           if (userMap.get(id).nonEmpty){
@@ -200,17 +173,14 @@ object RoomActor {
 
         case Close =>
           log.error(s"room:$roomId close;")
-//          Behaviors.same
           dispatch(subscribersMap, Protocol.CloseWs)
           roomManager ! RoomManager.CloseRoom(roomId)
           Behaviors.stopped
 
         case Sync =>
-//          println(s"userMap:::::$userMap")
           val deadUsers = grid.updateInService(roomId)
           val newData = grid.getGridData
           val initUpdate = if (grid.snakes.toList.length == 2 && !init) {
-//            println(s"!!!!!!!!!!!!!!!!!!!!!!!!!!dispatch totaldata")
             dispatch(subscribersMap, newData)
             true
           } else init
@@ -274,12 +244,6 @@ object RoomActor {
 
           for ((u, i) <- userMap) {
             if ((tickCount - i.joinFrame) % 60 == 30) dispatchTo(subscribersMap, u, Protocol.SyncFrame(grid.frameCount.toInt))
-//            try {
-//              if ((tickCount - i.joinFrame) % 100 == 0) dispatchTo(subscribersMap, u, Protocol.ScoreTest(grid.frameCount.toInt, grid.snakes(i.breakoutId).score))
-//            } catch {
-//              case e : Exception =>
-//                log.error(s"exception!!::$e")
-//            }
           }
 
           grid.newInfo = Nil

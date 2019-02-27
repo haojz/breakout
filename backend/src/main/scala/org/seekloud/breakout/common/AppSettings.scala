@@ -34,6 +34,9 @@ object AppSettings {
   val config = ConfigFactory.parseResources("product.conf").withFallback(ConfigFactory.load())
 
   val appConfig = config.getConfig("app")
+  val projectVersion = appConfig.getString("projectVersion")
+
+
 
   val httpInterface = appConfig.getString("http.interface")
   val httpPort = appConfig.getInt("http.port")

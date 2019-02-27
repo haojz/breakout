@@ -5,7 +5,6 @@ import org.scalajs.dom.raw.HTMLAudioElement
 
 import scala.math.{cos, max, min, sin}
 import org.seekloud.breakout.client.{DrawRank, NetGameHolder}
-//import org.seekloud.breakout.{Grid, Point}
 import org.seekloud.breakout.client.DrawRank._
 
 /**
@@ -28,7 +27,6 @@ class GridOnClient(override val boundary: Point) extends Grid {
 
   override def info(msg: String): Unit = println(msg)
 
-//  override def feedApple(appleCount: Int): Unit = {} //do nothing.
 
   def resetGrid() = {
     historyStateMap = Map.empty[Int, (Map[Byte, (Byte, Byte)], Map[Byte, Ball], Map[Byte, SkDt], Map[Byte, Int])]
@@ -66,14 +64,13 @@ class GridOnClient(override val boundary: Point) extends Grid {
         val point = ball._2.point
         val speedX = (speed * cos(theta)).formatted("%.4f")
         val speedY = (-speed * sin(theta)).formatted("%.4f")
-//        println(s"frame: $frameCount, speedX: $speedX, speedY: $speedY")
 
 
         val newPoint = (point + Point(speedX.toFloat, speedY.toFloat)).format
-//        println(s"front: frame: $frameCount, new point:$newPoint")
         val isDead = if (newPoint.y > Boundary.h) true else false
-
         //判断是否撞墙
+
+
         if (!isDead) {
           newPoint match {
             case Point(x, y) if (x <= leftBoundary || x >= rightBoundary - 2 * ballRadius) && y <= 0 =>
@@ -87,7 +84,6 @@ class GridOnClient(override val boundary: Point) extends Grid {
             case Point(x, y) if y < paddleY + 1 && y > paddleY - 1  && x <= snake.paddleLeft + pWidth +1 && x >= snake.paddleLeft -1=>
               //              println(s"theta::::$theta")
               if (myId == snake.bId) crashPaddle.play()
-//              crashBrick.play()
               balls += ((ball._1, ball._2.copy(theta = - theta, point = Point(x, paddleY - 2 * ballRadius))))
             case Point(x, y) =>
               val width = 4
@@ -113,7 +109,6 @@ class GridOnClient(override val boundary: Point) extends Grid {
                     greenBallId += 1
                     isCrashGreen = true
                   }
-                  //                    snakes += snake.bId -> snake.copy(characterLife = 200)
                   isCrash = true
                   if ((point.y > bY + height && y <= bY + height) || (point.y < bY - ballRadius * 2 && y >= bY - ballRadius * 2)) {
                     balls += ((ball._1, ball._2.copy(theta = - theta, point = Point(x, y))))
@@ -148,27 +143,22 @@ class GridOnClient(override val boundary: Point) extends Grid {
       val paddleLeft = if (snake.paddleLeft + pWidth > rightBoundary) rightBoundary - pWidth else snake.paddleLeft
       if (dead) Left(snake.copy(characterLife = characterLife, score = score, paddleLeft = paddleLeft)) else {
         val keyCode = actMap.get(snake.id)
-        //        println(s"frame: $frameCount, keyCode: $keyCode")
         val key = keyCode match {
           case Some(1) => lastAction += (snake.bId -> 1) ; 1
           case Some(2) => lastAction += (snake.bId -> 2) ; 2
           case Some(0) => lastAction += (snake.bId -> 0) ; 0
           case None if lastAction.get(snake.bId).nonEmpty && lastAction(snake.bId) == 1 => 1
           case None if lastAction.get(snake.bId).nonEmpty && lastAction(snake.bId) == 2 => 2
-          //          case None if lastAction == -1 => 0
           case _ => 0
         }
-//        println(s"front: $frameCount, action:$key ")
         key match {
           case 1 => //向左
             if (snake.paddleLeft - moveSpeed >= leftBoundary) {
               drawPaddleMap += snake.bId -> true
-//              drawPaddle(snake.color, snake.paddleLeft - moveSpeed, characterLife)
               Right(snake.copy(paddleLeft = snake.paddleLeft - moveSpeed, characterLife = characterLife, score = score))
             } else {
               if (snake.paddleLeft > leftBoundary || isCrashYellow)
                 drawPaddleMap += snake.bId -> true
-//                drawPaddle(snake.color, leftBoundary, characterLife)
               Right(snake.copy(paddleLeft = leftBoundary, score = score, characterLife = characterLife))
             }
 
@@ -176,17 +166,14 @@ class GridOnClient(override val boundary: Point) extends Grid {
           case 2 => //向右
             if (snake.paddleLeft + pWidth + moveSpeed <= rightBoundary) {
               drawPaddleMap += snake.bId -> true
-//              drawPaddle(snake.color, snake.paddleLeft + moveSpeed, characterLife)
               Right(snake.copy(paddleLeft = snake.paddleLeft + moveSpeed, characterLife = characterLife, score = score))
             }
             else {
               if (snake.paddleLeft + pWidth < rightBoundary || isCrashYellow)
                 drawPaddleMap += snake.bId -> true
-//                drawPaddle(snake.color, rightBoundary - pWidth, characterLife)
               Right(snake.copy(paddleLeft = rightBoundary - pWidth, characterLife = characterLife, score = score))}
 
           case 0 => //不动
-//              drawPaddle(snake.color, snake.paddleLeft, characterLife)
             Right(snake.copy(characterLife = characterLife, score = score, paddleLeft = paddleLeft))
         }
       }
@@ -199,13 +186,13 @@ class GridOnClient(override val boundary: Point) extends Grid {
 
 
     snakes.values.map(updateASnake(_, acts)).foreach {
-      case Right(s) => updatedSnakes ::= s
+      case Right(s) =>
+        if (s.characterLife == 200 && (s.paddleLeft + (1.5 * paddleWidth).toInt) > s.color * 80 + 50) {
+          updatedSnakes ::= s.copy(paddleLeft = s.color * 80 + 50 - (1.5 * paddleWidth).toInt)
+        } else updatedSnakes ::= s
       case Left(s) => deadSnakes ::= s
-      //      case Left(s) => deadSnakes ::= s.copy(life = (s.life -1).toByte)
-      //        mapKillCounter += killerId -> (mapKillCounter.getOrElse(killerId, 0) + 1)
     }
 
-    //    snakes = (updatedSnakes ++ deadSnakes.filterNot(_.life == 0)).map(s => (s.bId, s)).toMap
     snakes = (updatedSnakes ++ deadSnakes).map{s =>
       val off = if (frameCount % 10 == 0)  {
         s.off +1
@@ -216,7 +203,6 @@ class GridOnClient(override val boundary: Point) extends Grid {
       if (drawPaddleMap.get(s._1).nonEmpty && drawPaddleMap(s._1) && !deadList.contains(s._1)) drawPaddle(s._2.color, s._2.paddleLeft, s._2.characterLife)
     }
     deadSnakes
-    //      .filter(s => s.life == 0 && !balls.exists(_._2.bId == s.bId))
 
   }
 }

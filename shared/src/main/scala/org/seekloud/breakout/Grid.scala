@@ -22,13 +22,11 @@ trait Grid {
   def info(msg: String): Unit
 
   val random = new Random(System.nanoTime())
-//  var off = 0
 //  val angleUnit = math.Pi / 180
   val angleUnit = 0.01745
   var historyStateMap = Map.empty[Int, (Map[Byte, (Byte, Byte)], Map[Byte, Ball], Map[Byte, SkDt], Map[Byte, Int])]
   var frameCount = 0l
   val maxDelayed = 11 //最大接收10帧以内的延时
-//  var grid = Map[Point, Spot]()
   var snakes = Map.empty[Byte, SkDt]
   var balls = Map.empty[Byte,  Ball] //单数为左方，双数为右方
   var bricks = Map.empty[Byte, (Byte, Byte)]//id，(seat，属性)
@@ -42,17 +40,6 @@ trait Grid {
   val startX = 5
   val startY = 4
   var greenBallId = 10
-
-
-
-
-//  def removeSnake(id: Long): Option[SkDt] = {
-//    val r = snakes.get(id)
-//    if (r.isDefined) {
-//      snakes -= id
-//    }
-//    r
-//  }
 
 
   def addAction(id: String, keyCode: Byte) = {
@@ -76,15 +63,11 @@ trait Grid {
 
 
   def update() = {
-    //println(s"-------- grid update frameCount= $frameCount ---------")
     val deadSnakes = updateSnakes()
-//    actionMap -= frameCount
     frameCount += 1
-//    off += 1
     deadSnakes
   }
 
-//  def feedApple(appleCount: Int): Unit
 
 
    def updateSnakes() = {
@@ -109,11 +92,9 @@ trait Grid {
         val point = ball._2.point
         val speedX = (speed * cos(theta)).formatted("%.4f")
         val speedY = (-speed * sin(theta)).formatted("%.4f")
-//        println(s"frame: $frameCount, speedX: $speedX, speedY: $speedY")
 
         val newPoint = (point + Point(speedX.toFloat, speedY.toFloat)).format
         val isDead = if (newPoint.y > Boundary.h) true else false
-//        println(s"backend: $frameCount, new point:$newPoint")
 
         //判断是否撞墙
         if (!isDead) {
@@ -121,13 +102,11 @@ trait Grid {
             case Point(x, y) if (x <= leftBoundary || x >= rightBoundary - 2 * ballRadius) && y <= 0 =>
               balls += ((ball._1, ball._2.copy(theta = theta - 180 * angleUnit, point = Point(min(max(leftBoundary, x), rightBoundary - 2 * ballRadius), 0))))
             case Point(x, y) if x <= leftBoundary || x >= rightBoundary - 2 * ballRadius =>
-//              println(s"bounds.w::::${Boundary.w}, ball.x::::$x, theta:::$theta, newY:${newPoint.y}")
               balls += ((ball._1, ball._2.copy(theta = 180 * angleUnit - theta, point = Point(min(max(leftBoundary, x), rightBoundary - 2 * ballRadius), y))))
             case Point(x, y) if y <= 0 =>
               balls += ((ball._1, ball._2.copy(theta = - theta, point = Point(x, 0))))
 
             case Point(x, y) if y < paddleY + 1 && y > paddleY - 1  && x <= snake.paddleLeft + pWidth +1 && x >= snake.paddleLeft -1=>
-//              println(s"theta::::$theta")
               balls += ((ball._1, ball._2.copy(theta = - theta, point = Point(x, paddleY - 2 * ballRadius))))
             case Point(x, y) =>
               val width = 4
@@ -211,7 +190,10 @@ trait Grid {
     val acts = actionMap.getOrElse(frameCount, Map.empty[String, Byte])
 
     snakes.values.map(updateASnake(_, acts)).foreach {
-      case Right(s) => updatedSnakes ::= s
+      case Right(s) =>
+        if (s.characterLife == 200 && (s.paddleLeft + (1.5 * paddleWidth).toInt) > s.color * 80 + 50) {
+          updatedSnakes ::= s.copy(paddleLeft = s.color * 80 + 50 - (1.5 * paddleWidth).toInt)
+        } else updatedSnakes ::= s
       case Left(s) => deadSnakes ::= s
 //      case Left(s) => deadSnakes ::= s.copy(life = (s.life -1).toByte)
 //        mapKillCounter += killerId -> (mapKillCounter.getOrElse(killerId, 0) + 1)

@@ -53,7 +53,7 @@ class WebSocketClient(
         wsSetup = false
         gameStreamOpt = None
         close(event, serverState)
-        dom.window.location.href=s"http://${Main.host}:40110/breakout#/Home"
+        dom.window.location.href=s"http://${Main.host}:47010/breakout#/Home"
       }
 
       val messageIdGenerator = new AtomicInteger(0)
