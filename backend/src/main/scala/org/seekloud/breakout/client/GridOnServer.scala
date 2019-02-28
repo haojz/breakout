@@ -1,14 +1,9 @@
 package org.seekloud.breakout.client
 
 import java.util.concurrent.atomic.AtomicInteger
-
-import net.sf.ehcache.config.SearchAttribute
 import org.seekloud.breakout.Grid
 import org.slf4j.LoggerFactory
 import org.seekloud.breakout._
-import org.seekloud.breakout.Boot.roomManager
-import org.seekloud.breakout.core.RoomActor
-
 import scala.util.Random
 import org.seekloud.breakout.Constant._
 
