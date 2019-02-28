@@ -26,9 +26,6 @@ object Login extends Page {
     val username = dom.window.document.getElementById("username").asInstanceOf[Input].value
     val password = dom.window.document.getElementById("password").asInstanceOf[Input].value
     val data = LoginReq(username, password).asJson.noSpaces
-    //    println(username)
-    //    println(password)
-    //    println(Routes.login(username, password))
     postJson(Routes.login, data, true).map { s =>
       decode[SuccessRsp](s).map { rsp =>
         if (rsp.errCode == 10003) {
@@ -65,12 +62,9 @@ object Login extends Page {
           <div class="login_name">
             <p>Welcome to BREAKOUT!</p>
           </div>
-
           <input name="username" type="text" id="username" placeholder="用户名"></input>
           <input name="password" type="password" id="password" placeholder="密码"></input>
           <button class="login_button" style="width: 100%; height: 50px;" type="submit" onclick={() => login()}>登录</button>
-
-
         </div>
       </div>
     </div>

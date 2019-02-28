@@ -3,16 +3,18 @@ package org.seekloud.breakout.client
 import org.scalajs.dom
 import org.scalajs.dom.ext.Color
 import org.scalajs.dom.html.{Canvas, Image}
-import org.seekloud.breakout.Boundary
-import org.seekloud.breakout.Grid
+import org.scalajs.dom.raw.{CanvasRenderingContext2D, HTMLAudioElement}
+import org.seekloud.breakout.{Boundary, Grid, Protocol, _}
+import org.seekloud.breakout.Protocol.GridBallData
+
 import scalatags.JsDom.short.s
-import org.seekloud.breakout._
+import scala.math.{cos, sin}
 
 
 /**
   * Created by haoshuhan on 2019/2/22.
   */
-object DrawRank {
+object DrawElements {
   private[this] val canvas = dom.document.getElementById("RankView").asInstanceOf[Canvas] //排行榜canvas
   private[this] val ctx = canvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
   private[this] val brickCanvas = dom.document.getElementById("BrickView").asInstanceOf[Canvas] //排行榜canvas
@@ -24,6 +26,13 @@ object DrawRank {
   private val blueBrick = dom.document.getElementById("blueBrick").asInstanceOf[Image]
   private val greenBrick = dom.document.getElementById("greenBrick").asInstanceOf[Image]
   private val yellowBrick = dom.document.getElementById("yellowBrick").asInstanceOf[Image]
+  private val ball = dom.document.getElementById("ball").asInstanceOf[Image]
+  private val victoryImg = dom.document.getElementById("victory_img").asInstanceOf[Image]
+  private val defeatImg = dom.document.getElementById("defeat_img").asInstanceOf[Image]
+
+  private[this] val defeat = dom.document.getElementById("defeat").asInstanceOf[HTMLAudioElement]
+  private[this] val victory = dom.document.getElementById("victory").asInstanceOf[HTMLAudioElement]
+
   var canvasUnit = 0
   val paddleWidth = 8
   val paddleHeight = 2
@@ -105,6 +114,93 @@ object DrawRank {
       brickCtx.drawImage(brickColor, startX* canvasUnit + seat * Boundary.start2 * canvasUnit + x * width, bY, width - 1, height - 1)
     }
   }
+
+  def drawGrid(ctx: CanvasRenderingContext2D, firstCome: Boolean, uid: Long, data: GridBallData, offsetTime: Long): Unit = {
+    ctx.clearRect(0, 0, 50 * canvasUnit, Boundary.h * canvasUnit)
+    ctx.clearRect(80 * canvasUnit, 0, 50 * canvasUnit, Boundary.h * canvasUnit)
+
+    (0 to 1).foreach { i =>
+      if (!data.snakes.exists(_.color == i)) drawLeft(firstCome, ctx, i)
+    }
+
+    val balls = data.balls
+
+    balls.foreach { b =>
+      val theta = b.theta
+      val speed = b.speed * (offsetTime / Protocol.frameRate)
+      val point = b.point
+      val speedX = (speed * cos(theta)).formatted("%.4f")
+      val speedY = (-speed * sin(theta)).formatted("%.4f")
+      val newPoint = (point + Point(speedX.toFloat, speedY.toFloat)).format
+      val x = newPoint.x
+      val y = newPoint.y
+      ctx.drawImage(ball, x * canvasUnit, y * canvasUnit,
+        Constant.ballRadius * 2 * canvasUnit, Constant.ballRadius * 2 * canvasUnit)
+    }
+  }
+
+  def drawLeft(firstCome: Boolean, ctx: CanvasRenderingContext2D, seat: Int): Unit = {
+    val x = seat match {
+      case 0 => Boundary.start1
+      case 1 => Boundary.start2
+    }
+
+    if (firstCome) {
+      ctx.fillStyle = Color.Black.toString()
+      ctx.fillRect(x * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
+      ctx.fillStyle = "rgb(250, 250, 250)"
+      ctx.font = "36px Helvetica"
+      ctx.fillText("等待该玩家进入...", seat * x * canvasUnit + 50, 180)
+
+    } else {
+      fillHalfBalck()
+      ctx.fillStyle = "rgb(250, 250, 250)"
+      ctx.font = "36px Helvetica"
+      ctx.globalAlpha = 1
+      ctx.fillText("该玩家退出本局游戏", seat * x * canvasUnit + 50, 180)
+      ctx.fillText("房间即将关闭...", seat * x * canvasUnit + 50, 220)
+    }
+  }
+
+  def fillHalfBalck(): Unit = {
+    ctx.globalAlpha = 0.4
+    ctx.fillStyle = Color.Black.toString()
+    ctx.fillRect(0 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
+    ctx.fillRect(1 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
+  }
+
+
+  def drawDefeat(firstCome: Boolean, ctx: CanvasRenderingContext2D, myId: Byte,
+                 balls: Protocol.GridBallData, bId: Byte, snakes: Map[Byte, SkDt]): Unit = {
+    drawGrid(ctx, firstCome, -1, balls, 0)
+    if (snakes.get(bId).nonEmpty) {
+      val seat = snakes(bId).color
+      fillHalfBalck()
+      ctx.fillStyle = "rgb(250, 250, 250)"
+      ctx.font = "36px Helvetica"
+      ctx.globalAlpha = 1
+      ctx.drawImage(defeatImg, seat * Boundary.start2 * canvasUnit + 10 ,137, 50, 50)
+      ctx.fillText("Defeat...", seat * Boundary.start2 * canvasUnit + 65, 180)
+      ctx.drawImage(victoryImg, scala.math.abs(seat - 1) * Boundary.start2 * canvasUnit + 10 ,137, 50, 50)
+      ctx.fillText("Victory...", scala.math.abs(seat - 1) * Boundary.start2 * canvasUnit + 60, 180)
+      if (bId == myId) {
+        defeat.play()
+      } else {
+        victory.play()
+      }
+
+    } else if (bId == -1) {
+      val seat = 0
+      fillHalfBalck()
+      ctx.fillStyle = "rgb(250, 250, 250)"
+      ctx.font = "36px Helvetica"
+      ctx.globalAlpha = 1
+      ctx.fillText("平局！", seat * Boundary.start2 * canvasUnit + 50, 180)
+      ctx.fillText("平局！", scala.math.abs(seat - 1) * Boundary.start2 * canvasUnit + 50, 180)
+    } else println(s"draw defeat error")
+
+  }
+
 
   def init(canvasUnitRecv: Int, snakes:List[SkDt], bricks: List[(Byte, (Byte, Byte))], first: Boolean = true) = {
     canvasUnit = canvasUnitRecv

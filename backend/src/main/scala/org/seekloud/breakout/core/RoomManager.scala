@@ -122,12 +122,11 @@ object RoomManager {
               roomState.update(roomId, Some(RoomState(roomState(roomId).get.pwd, users + (bId -> userUpdate))))
               val userInfo = userUpdate.info
               val seat = users.filter(_._1 == bId).head._2.seat
-              getRoomActor(ctx, roomId) ! RoomActor.JoinRoom(userInfo.bId, userInfo.id, userInfo.name, seat, subscriber) //todo 两用户加入才开始
+              getRoomActor(ctx, roomId) ! RoomActor.JoinRoom(userInfo.bId, userInfo.id, userInfo.name, seat, subscriber)
               val old = roomMap.getOrElse(roomId, (None, mutable.Map.empty[String,(Byte, String)]))
               roomMap += roomId -> (None, old._2  + (userInfo.id -> (userInfo.bId, userInfo.name)))
 
               if (roomMap(roomId)._2.toList.length == 2) { //两人都准备完毕
-                //              getRoomActor(ctx, )
                 println(s"roomMap::$roomMap")
               }
             }

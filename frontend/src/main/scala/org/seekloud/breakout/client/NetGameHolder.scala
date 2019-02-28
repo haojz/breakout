@@ -10,7 +10,7 @@ import org.seekloud.breakout.utils.{Http, JsFunc, Page}
 import mhtml._
 import org.seekloud.breakout.Main.host
 import scala.xml.Elem
-import org.seekloud.breakout.client.DrawRank._
+import org.seekloud.breakout.client.DrawElements._
 import scala.math.{cos, sin}
 
 /**
@@ -67,14 +67,9 @@ class NetGameHolder(id: String) extends Page {
   private[this] val brickCanvas = dom.document.getElementById("BrickView").asInstanceOf[Canvas] //排行榜canvas
   private[this] val borderCanvas = dom.document.getElementById("BorderView").asInstanceOf[Canvas] //排行榜canvas
   private[this] lazy val borderCtx = borderCanvas.getContext("2d").asInstanceOf[dom.CanvasRenderingContext2D]
-  private val victoryImg = dom.document.getElementById("victory_img").asInstanceOf[Image]
-  private val defeatImg = dom.document.getElementById("defeat_img").asInstanceOf[Image]
 
-  private[this] val defeat = dom.document.getElementById("defeat").asInstanceOf[HTMLAudioElement]
-  private[this] val victory = dom.document.getElementById("victory").asInstanceOf[HTMLAudioElement]
   private[this] val addBall = dom.document.getElementById("add_ball").asInstanceOf[HTMLAudioElement]
 
-  private val ball = dom.document.getElementById("ball").asInstanceOf[Image]
   private val border = dom.document.getElementById("border").asInstanceOf[Image]
 
   private[this] val webSocketClient: WebSocketClient = new WebSocketClient(connectOpenSuccess, connectError, messageHandler, connectClose)
@@ -168,72 +163,6 @@ class NetGameHolder(id: String) extends Page {
 
   }
 
-  def drawLeft(seat: Int): Unit = {
-    val x = seat match {
-      case 0 => Boundary.start1
-      case 1 => Boundary.start2
-    }
-
-    if (firstCome) {
-      ctx.fillStyle = Color.Black.toString()
-      ctx.fillRect(x * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      ctx.fillStyle = "rgb(250, 250, 250)"
-      ctx.font = "36px Helvetica"
-      ctx.fillText("等待该玩家进入...", seat * x * canvasUnit + 50, 180)
-
-    } else {
-      rankCtx.fillStyle = Color.Black.toString()
-      rankCtx.globalAlpha = 0.4
-      rankCtx.fillRect(0 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      rankCtx.fillRect(1 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      rankCtx.fillStyle = "rgb(250, 250, 250)"
-      rankCtx.font = "36px Helvetica"
-      rankCtx.globalAlpha = 1
-      rankCtx.fillText("该玩家退出本局游戏", seat * x * canvasUnit + 50, 180)
-      rankCtx.fillText("房间即将关闭...", seat * x * canvasUnit + 50, 220)
-    }
-  }
-
-  def drawDefeat(bId: Byte): Unit = {
-    drawGrid(-1, grid.getBall4Draw, 0)
-    if (grid.snakes.get(bId).nonEmpty) {
-      val seat = grid.snakes(bId).color
-      rankCtx.fillStyle = Color.Black.toString()
-      rankCtx.globalAlpha = 0.4
-      rankCtx.fillRect(0 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      rankCtx.fillRect(1 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      rankCtx.fillStyle = "rgb(250, 250, 250)"
-      rankCtx.font = "36px Helvetica"
-      rankCtx.globalAlpha = 1
-      rankCtx.drawImage(defeatImg, seat * Boundary.start2 * canvasUnit + 10 ,137, 50, 50)
-      rankCtx.fillText("Defeat...", seat * Boundary.start2 * canvasUnit + 65, 180)
-      rankCtx.drawImage(victoryImg, scala.math.abs(seat - 1) * Boundary.start2 * canvasUnit + 10 ,137, 50, 50)
-      rankCtx.fillText("Victory...", scala.math.abs(seat - 1) * Boundary.start2 * canvasUnit + 60, 180)
-      println(s"myId:$myId,,,$bId")
-      if (bId == myId) {
-        defeat.play()
-        println(s"defeat!")
-      } else {
-        victory.play()
-        println(s"victory")
-      }
-
-
-    } else if (bId == -1) {
-      val seat = 0
-      rankCtx.globalAlpha = 0.4
-      rankCtx.fillStyle = Color.Black.toString()
-      rankCtx.fillRect(0 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      rankCtx.fillRect(1 * Boundary.start2 * canvasUnit, 0, 50 * canvasUnit, 60 * canvasUnit)
-      rankCtx.fillStyle = "rgb(250, 250, 250)"
-      rankCtx.font = "36px Helvetica"
-      rankCtx.globalAlpha = 1
-      rankCtx.fillText("平局！", seat * Boundary.start2 * canvasUnit + 50, 180)
-      rankCtx.fillText("平局！", scala.math.abs(seat - 1) * Boundary.start2 * canvasUnit + 50, 180)
-    } else println(s"draw defeat error")
-
-  }
-
 
   def gameLoop(): Unit = {
     logicFrameTime = System.currentTimeMillis()
@@ -248,11 +177,10 @@ class NetGameHolder(id: String) extends Page {
           println(s"frontend advanced backend,frontend$frontend,backend:$backend")
           grid.setGridInGivenFrame(backend)
           if (grid.deadList.nonEmpty && grid.snakes.get(grid.deadList.head).nonEmpty){
-            DrawRank.init(canvasUnit, grid.snakes.filterNot(s => grid.deadList.contains(s._1)).values.toList, grid.bricks.filterNot(b => grid.snakes(grid.deadList.head).color == b._2._1).toList)
+            DrawElements.init(canvasUnit, grid.snakes.filterNot(s => grid.deadList.contains(s._1)).values.toList, grid.bricks.filterNot(b => grid.snakes(grid.deadList.head).color == b._2._1).toList)
           } else {
-            DrawRank.init(canvasUnit, grid.snakes.values.toList, grid.bricks.toList)
+            DrawElements.init(canvasUnit, grid.snakes.values.toList, grid.bricks.toList)
           }
-
         } else if (advancedFrame == 0) {
           println(s"frontend equal to backend,frontend$frontend,backend:$backend")
         } else if (advancedFrame > 0 && advancedFrame < (grid.maxDelayed - 1)) {
@@ -278,10 +206,9 @@ class NetGameHolder(id: String) extends Page {
     grid.historyStateMap += grid.frameCount.toInt -> (grid.bricks, grid.balls, grid.snakes, grid.lastAction)
     val deadUsers = grid.update()
     val totalScore = 500
-    if (grid.snakes.exists(s => s._2.score % totalScore == 0 && !grid.bricks.exists(_._2._1 == s._2.color))) {
-      grid.snakes.filter(s => s._2.score % totalScore == 0 && !grid.bricks.exists(_._2._1 == s._2.color)).foreach {s =>
-        waiting4Bricks = waiting4Bricks ++ Map(s._2.color.toInt -> (waiting4Bricks(s._2.color.toInt) + 1))
-      }
+    val waitingBricksSnakes = grid.snakes.filter(s => s._2.score % totalScore == 0 && !grid.bricks.exists(_._2._1 == s._2.color))
+    waitingBricksSnakes.foreach {s =>
+      waiting4Bricks = waiting4Bricks ++ Map(s._2.color.toInt -> (waiting4Bricks(s._2.color.toInt) + 1))
     }
 
     if (waiting4Bricks.exists(_._2 >= 5)) {
@@ -352,48 +279,27 @@ class NetGameHolder(id: String) extends Page {
     }
   }
 
+  def dealWithLoseMap(bId: Byte): Unit = {
+    drawDefeat(firstCome, ctx, myId, grid.getBall4Draw, bId, grid.snakes)
+    ifVictory := true
+    dom.window.clearInterval(gameLoopId)
+    isContinue = false
+    dom.window.clearInterval(renderId)
+  }
+
   def draw(offsetTime: Long): Unit = {
     if (webSocketClient.getWsState) {
       if (loseMap.get(grid.frameCount.toInt).nonEmpty) {
-        drawDefeat(loseMap(grid.frameCount.toInt))
-        ifVictory := true
-        dom.window.clearInterval(gameLoopId)
-        isContinue = false
-        dom.window.clearInterval(renderId)
-
+        dealWithLoseMap(loseMap(grid.frameCount.toInt))
       } else {
         val data = grid.getBall4Draw
-
-        drawGrid(myId, data, offsetTime)
+        drawGrid(ctx, firstCome, myId, data, offsetTime)
       }
     } else {
     }
   }
 
 
-  def drawGrid(uid: Long, data: GridBallData, offsetTime: Long): Unit = {
-    ctx.clearRect(0, 0, 50 * canvasUnit, bounds.y * canvasUnit)
-    ctx.clearRect(80 * canvasUnit, 0, 50 * canvasUnit, bounds.y * canvasUnit)
-
-    (0 to 1).foreach { i =>
-      if (!data.snakes.exists(_.color == i)) drawLeft(i)
-    }
-
-    val balls = data.balls
-
-    balls.foreach { b =>
-      val theta = b.theta
-      val speed = b.speed * (offsetTime / Protocol.frameRate)
-      val point = b.point
-      val speedX = (speed * cos(theta)).formatted("%.4f")
-      val speedY = (-speed * sin(theta)).formatted("%.4f")
-      val newPoint = (point + Point(speedX.toFloat, speedY.toFloat)).format
-      val x = newPoint.x
-      val y = newPoint.y
-      ctx.drawImage(ball, x * canvasUnit, y * canvasUnit,
-        grid.ballRadius * 2 * canvasUnit, grid.ballRadius * 2 * canvasUnit)
-    }
-  }
 
 
   def drawTextLine(str: String, x: Int, lineNum: Int, lineBegin: Int = 0) = {
@@ -414,15 +320,15 @@ class NetGameHolder(id: String) extends Page {
         println(s"======================recv total data")
         grid.resetTotalData(msg)
         if (grid.deadList.nonEmpty && grid.snakes.get(grid.deadList.head).nonEmpty){
-          DrawRank.init(canvasUnit, grid.snakes.filterNot(s => grid.deadList.contains(s._1)).values.toList, grid.bricks.filterNot(b => grid.snakes(grid.deadList.head).color == b._2._1).toList)
+          DrawElements.init(canvasUnit, grid.snakes.filterNot(s => grid.deadList.contains(s._1)).values.toList, grid.bricks.filterNot(b => grid.snakes(grid.deadList.head).color == b._2._1).toList)
         } else {
-          DrawRank.init(canvasUnit, grid.snakes.values.toList, grid.bricks.toList)
+          DrawElements.init(canvasUnit, grid.snakes.values.toList, grid.bricks.toList)
         }
         waiting4Bricks = Map(0 -> 0, 1 -> 0)
         if (firstCome) {
           firstCome = false
           run()
-          DrawRank.init(canvasUnit, msg.snakes.map(_._2), msg.bricks) //test
+          DrawElements.init(canvasUnit, msg.snakes.map(_._2), msg.bricks) //test
         }
 
       case Protocol.UserDead(frame, users) =>
@@ -431,7 +337,7 @@ class NetGameHolder(id: String) extends Page {
       case Protocol.UserLeft(bId) =>
         if (grid.snakes.get(bId).nonEmpty) {
           val seat = grid.snakes(bId).color
-          drawLeft(seat)
+          drawLeft(firstCome, ctx, seat)
           grid.snakes -= bId
           grid.bricks = grid.bricks.filterNot(_._2._1 == seat)
           grid.balls = grid.balls.filterNot(_._2.bId == bId)
@@ -456,7 +362,6 @@ class NetGameHolder(id: String) extends Page {
 
       case Protocol.NewBalls(frame, balls) =>
         newBallMap += frame -> balls
-        println(s"recv newBalls:$balls, front: ${grid.frameCount}, backend: $frame")
         if (grid.frameCount == frame) {
           dealWithNewBalls()
         }
@@ -472,21 +377,13 @@ class NetGameHolder(id: String) extends Page {
         grid.addActionWithFrame(grid.snakes(bId).id, keyCode, frame.toLong)
 
       case data: Protocol.Text =>
-        println(s"recv data: $data")
         textList.update(t => t :+ data)
         dom.document.getElementById("text_list").scrollTop = dom.document.getElementById("text_list").scrollHeight
-
-      case data: Protocol.ScoreTest =>
-        println(s"=====recv data: $data")
 
       case data@Protocol.SomeOneLose(frame, id, score) =>
         println(s"recv data:::==========================:$data; front: ${grid.snakes.map(s => (s._2.color, s._2.score))}")
         if (frame <= grid.frameCount.toInt) {
-          drawDefeat(id)
-          ifVictory := true
-          dom.window.clearInterval(gameLoopId)
-          isContinue = false
-          dom.window.clearInterval(renderId)
+          dealWithLoseMap(id)
         } else loseMap += frame -> id
 
       case Protocol.UserConfirm(bId) =>
@@ -620,7 +517,6 @@ class NetGameHolder(id: String) extends Page {
   val height = (Boundary.h - 2) * canvasUnit
   val left2 = (Boundary.end2 + 2) * canvasUnit
   val wid = 50 * canvasUnit
-  //  val left2 = 80 * canvasUnit
 
   val textListRx = textList.map { list =>
     list.map { l =>
@@ -646,9 +542,6 @@ class NetGameHolder(id: String) extends Page {
     init()
     val name1 = dom.window.localStorage.getItem("name1")
     val name2 = dom.window.localStorage.getItem("name2")
-    println(s"canvasUnit::::::$canvasUnit")
-    println(s"name1:::$name1")
-    println(s"name2:::$name2")
 
     <div>
       <button class="btn btn-primary" style={s"position: absolute; left: ${dom.window.innerWidth - 100}px; top: 10px; width: 85px;"} onclick={() => dom.window.location.href = s"http://$host:47010/breakout"}>返回大厅</button>

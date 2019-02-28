@@ -83,8 +83,6 @@ object Register extends Page {
           <input name="password" type="password" id="password" placeholder="密码"></input>
           <input name="password_repeat" type="password" id="password_repeat" placeholder="再次输入密码"></input>
           <button class="login_button" style="width: 100%; height: 50px;" type="submit" onclick={() => register()}>注册</button>
-
-
         </div>
       </div>
     </div>

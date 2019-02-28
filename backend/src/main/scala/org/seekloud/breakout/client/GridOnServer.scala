@@ -10,6 +10,7 @@ import org.seekloud.breakout.Boot.roomManager
 import org.seekloud.breakout.core.RoomActor
 
 import scala.util.Random
+import org.seekloud.breakout.Constant._
 
 /**
   * User: Taoz

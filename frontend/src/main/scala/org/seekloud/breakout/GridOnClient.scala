@@ -4,8 +4,9 @@ import org.scalajs.dom
 import org.scalajs.dom.raw.HTMLAudioElement
 
 import scala.math.{cos, max, min, sin}
-import org.seekloud.breakout.client.{DrawRank, NetGameHolder}
-import org.seekloud.breakout.client.DrawRank._
+import org.seekloud.breakout.client.{DrawElements, NetGameHolder}
+import org.seekloud.breakout.client.DrawElements._
+import org.seekloud.breakout.Constant._
 
 /**
   * User: Taoz
@@ -118,7 +119,7 @@ class GridOnClient(override val boundary: Point) extends Grid {
                 }
               }
               if (!isCrash)  balls += ((ball._1, ball._2.copy(point = Point(x, y))))  else {
-                if (frameCount % 10 != 0 && !deadList.contains(snake.bId)) DrawRank.drawBricks(snake.color, snakes.values.toList, bricks.filter(_._2._1 == snake.color).toList)
+                if (frameCount % 10 != 0 && !deadList.contains(snake.bId)) DrawElements.drawBricks(snake.color, snakes.values.toList, bricks.filter(_._2._1 == snake.color).toList)
                 if (myId == snake.bId)
                   if (isCrashGreen) crashGreen.play()
                   else if (isCrashYellow) crashYellow.play()
@@ -197,7 +198,7 @@ class GridOnClient(override val boundary: Point) extends Grid {
       val off = if (frameCount % 10 == 0)  {
         s.off +1
       } else s.off
-      if (frameCount % 10 == 0 && s.level > 0 && !deadList.contains(s.bId)) DrawRank.drawBricks(s.color, snakes.values.toList, bricks.filter(_._2._1 == s.color).toList)
+      if (frameCount % 10 == 0 && s.level > 0 && !deadList.contains(s.bId)) DrawElements.drawBricks(s.color, snakes.values.toList, bricks.filter(_._2._1 == s.color).toList)
       (s.bId, s.copy(off = off))}.toMap
     snakes.foreach {s =>
       if (drawPaddleMap.get(s._1).nonEmpty && drawPaddleMap(s._1) && !deadList.contains(s._1)) drawPaddle(s._2.color, s._2.paddleLeft, s._2.characterLife)

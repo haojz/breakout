@@ -27,18 +27,14 @@ object Home extends Page {
   override val locationHashString: String = "#/Home"
 
   private var stateLoopId = -1
-
-  var joinRoomId = -1
-
-  var myId = ""
-
-  val roomStateInit = (1001 to 1020).map { i =>
+  private var joinRoomId = -1
+  private var myId = ""
+  private val roomStateInit = (1001 to 1020).map { i =>
     (i, None.asInstanceOf[Option[RoomState]])
   }.toMap
   val roomState = Var(roomStateInit)
 
   def getRoomState(): Unit = {
-//    val data = RoomStateReq(dom.window.localStorage.getItem("userId")).asJson.noSpaces
     Http.getAndParse[RoomStateRsp](Routes.getRoomState).map {
       case Right(rsp) =>
         if (rsp.errCode == 0) {
@@ -48,19 +44,11 @@ object Home extends Page {
             newState(joinRoomId).nonEmpty && newState(joinRoomId).get.users.toList.length == 2) {
             val name1 = newState(joinRoomId).get.users.filter(_._2.seat == 0.toByte).head._2.info.name
             dom.window.localStorage.setItem("name1", name1)
-//            DataStore.name1 = name
-//            println(s"name:::::::$name")
             val name2 = newState(joinRoomId).get.users.filter(_._2.seat == 1.toByte).head._2.info.name
             dom.window.localStorage.setItem("name2", name2)
-//            println(s"${Main.name2}")
             joinGame()
             //加入游戏
           }
-//          roomState.map { state =>
-//            val newState = state ++ rsp.roomState.map(r => r.roomId -> r.roomState).toMap
-//            roomState := newState
-//            println(s"newState:::::$newState")
-//          }
         } else {
           JsFunc.alert("get room state error!")
           dom.window.clearInterval(stateLoopId)
@@ -75,9 +63,6 @@ object Home extends Page {
 
   def joinGame(): Unit = {
     dom.window.location.href=s"http://$host:47010/breakout/game#/Game/$myId"
-//    dom.window.location.href=s"http://192.168.1.103:47010/breakout/game#/Game/$myId"
-//    dom.window.location.hash=s"#/Game/$myId"
-
   }
 
 
@@ -90,11 +75,9 @@ object Home extends Page {
     val (id, userType) = if (userId != null) (userId, 1) else (dom.window.localStorage.getItem("guestId"), 0)
     myId = id
     val name = if (userName != null) userName else dom.window.localStorage.getItem("guestName")
-//    val name = dom.window.localStorage.getItem("userName")
     if (id == null) {
       Header.initGuest()
       println(s"!!!!error: id 不存在")
-
     } else {
       Http.getAndParse[SuccessRsp](Routes.Game.joinRoom(userType.toByte, id, name, room, seat)).map {
         case Right(rst) =>
@@ -110,19 +93,11 @@ object Home extends Page {
 
       }
     }
-
-
   }
 
-//  def getRandomName: Unit = {
-//    val random = new Random(System.currentTimeMillis())
-//    dom.document.getElementById("nickName").asInstanceOf[Input].value = Main.guestName(random.nextInt(Main.guestName.length))
-//  }
 
   val roomRx = roomState.map { states =>
-//    println(s"states:::::::::::$states")
     states.toList.sortBy(_._1).map { s =>
-//      println(s"3333333===========")
       val img1Id = s"${s._1.toString}_0"
       val img2Id = s"${s._1.toString}_1"
       s._2 match {
@@ -151,8 +126,6 @@ object Home extends Page {
             }
             }
 
-
-
           <img src="/breakout/static/img/breakout_blue.png" class={breakoutImgStyle.htmlClass}></img>
 
           {val length = 6
@@ -177,8 +150,6 @@ object Home extends Page {
           </div>
 
         case None =>
-          //          val img1Id = s"${s._1}_1"
-          //          val img2Id = s"${s._1}_2"
           <div style="display: inline-block; width: 20%; margin: 2.5%;text-align: center;">
             <img id={img1Id} src="/breakout/static/img/question.png"
                  class="question" onclick={()=>joinRoom(img1Id)}></img>
@@ -207,26 +178,17 @@ object Home extends Page {
 
   val a = Var(List.empty[Elem])
 
-  val rx = a.map {a =>
-
-  }
-
   def getValue(): Unit = {
     a.update(p => p:::List(<img src="/breakout/static/img/biaoqing.png" style="width: 25px;"></img>))
   }
-//  <div id = "chat" style="width: 200px; height: 30px; overflow: auto; border: 2px solid #a7a2a2;
-//      left: 10px;position: relative; margin: 10px;" contenteditable="true">{a}</div>
-//    <button onclick={()=> getValue()}>查看</button>
 
   override def render: Elem = {
-//    println(s"888888")
     startStateLoop
     <div id="home">
       <div>
         {Header.render}
         {roomRx}
       </div>
-
     </div>
   }
 }

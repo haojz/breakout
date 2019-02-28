@@ -24,12 +24,8 @@ object Header extends Page{
   val loginS: Option[UserInfo] = None
   val manageDisplay = Var(false)
 
-
   val loginState = Var(loginS)
   val userInfo = Var("")
-
-
-//  private val firstStyle = state.map(state => if(state == "firstPage") "f-" else "")
 
   val manageIcon = manageDisplay.map {
     case false =>
@@ -96,14 +92,8 @@ object Header extends Page{
         }
       case Left(msg) =>
 
-//      window.location.href = DataStore.cloudy
     }
   }
-
-//  def getRandomName: Unit = {
-//    val random = new Random(System.currentTimeMillis())
-//    dom.document.getElementById("nickName").asInstanceOf[Input].value = Main.guestName(random.nextInt(Main.guestName.length))
-//  }
 
   def initGuest(): Unit = {
     if (dom.window.localStorage.getItem("userId") != null ) {
@@ -134,11 +124,9 @@ object Header extends Page{
     dom.window.localStorage.removeItem("headImg")
     dom.window.localStorage.removeItem("userName")
     dom.window.localStorage.removeItem("userId")
-//    dom.window.localStorage.removeItem("token")
   }
 
   def removeGuestInfo(): Unit = {
-//    dom.window.localStorage.removeItem("headImg")
     dom.window.localStorage.removeItem("guestName")
     dom.window.localStorage.removeItem("guestId")
   }

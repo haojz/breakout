@@ -6,6 +6,7 @@ import org.seekloud.breakout.Protocol.TotalData
 
 import scala.util.Random
 import scala.math._
+import org.seekloud.breakout.Constant._
 
 
 /**
@@ -31,7 +32,6 @@ trait Grid {
   var balls = Map.empty[Byte,  Ball] //单数为左方，双数为右方
   var bricks = Map.empty[Byte, (Byte, Byte)]//id，(seat，属性)
   var actionMap = Map.empty[Long, Map[String, Byte]]//帧号，（id，action:0up 1left 2right）
-  val ballRadius = 1
   val paddleWidth = 8
   val paddleHeight = 2
   var lastAction = Map.empty[Byte, Int]

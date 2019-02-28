@@ -56,6 +56,10 @@ package object breakout {
   val numEveryRow = 10
   val rowNum = 5
 
+  object Constant {
+    val ballRadius = 1
+  }
+
 
 
 
